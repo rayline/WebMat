@@ -13,16 +13,19 @@ function varNameDuplicateCheck(s){
     return !variables.hasOwnProperty("_" + s);
 }
 
-function newLine(){
-    lineCnt++;
-    var a = $("#input-line-0").clone();
-    var id = maxID;
-    id++;
-    maxID = id;
-    if(id!=1)$(a).attr("id","input-line-"+id).appendTo("#lines-container").slideDown(100);else{
-        $(a).attr("id","input-line-"+id).appendTo("#lines-container").show();
+function newLine(cnt){
+    if(cnt==undefined) cnt = 1;
+    for(var i=0;i<cnt;i++){
+        lineCnt++;
+        var a = $("#input-line-0").clone();
+        var id = maxID;
+        id++;
+        maxID = id;
+        if(id!=1)$(a).attr("id","input-line-"+id).appendTo("#lines-container").slideDown(100);else{
+            $(a).attr("id","input-line-"+id).appendTo("#lines-container").show();
+        }
+        deleteButtonDisplayCheck();
     }
-    deleteButtonDisplayCheck();
 }
 
 function deleteLine(b){
@@ -43,7 +46,7 @@ function deleteButtonDisplayCheck(){
     if(lineCnt==1){
         $(".delete").fadeOut(100);
     }else{
-        $(".delete").fadeIn(100);
+        $(".delete").show();
     }
 }
 
@@ -90,7 +93,7 @@ function calculate(t){
     }
     if(vname!=""){
         assign(vname, res);
-        $(t).parent().parent().children().children(".expression").parent().removeClass("has-error").removeClass("has-warning").addClass("has-success");
+        $(t).parent().parent().children().children(".expression").val(JSON.stringify(res)).parent().removeClass("has-error").removeClass("has-warning").addClass("has-success");
         $(t).parent().parent().children().children(".variable-name").attr("disabled","").attr("title","Not allowed to change assigned variable names.");
     }
     $(t).removeAttr("disabled");
@@ -387,6 +390,13 @@ function fileLoaded(e){
     $("#btn-set-file").removeAttr("disabled").removeAttr("title");
 }
 
+function addLineTutor(pos, name, expression){
+    var t = $(pos);
+    $(t).children().children().children().children(".expression").val(expression);
+    $(t).children().children().children().children(".variable-name").val(name);
+    expressionChangeHandler($(t).children().children().children().children(".expression"));
+}
+
 $(document).ready(function(){
     matrixResizeHandler();
     newLine();
@@ -427,4 +437,11 @@ $(document).ready(function(){
         "getVar(name) returns the value of the variable\n" +
         "evalMatExpression(expressoin) evaluates the value of the expression given and returns it\n" +
         "We have to say sorry for unable to build a GUI that strong, but we hope the console helps");
+
+    newLine(3);
+    addLineTutor("#input-line-1","ExA","[[1,2],[3,4]]");
+    addLineTutor("#input-line-2","ExB","[[5,6],[7,8]]");
+    addLineTutor("#input-line-3","Exc","det(ExA*(ExB+trans(ExA)))-trace(inv(ExA))");
+
+    deleteButtonDisplayCheck();
 });

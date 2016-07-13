@@ -15,6 +15,7 @@ function evalMatExpression(expression){
      expression S1, then (S1) is an expression
      expression S1, S2, then S1+S2, -S2, S1-S2, S1*S2, S1/S2 are expressions
      expression S1, func() is a function, then func(S1)/func(S1,S2) are expressions
+     expressions S11...Snm ，then [[S11,..,S1m],...,[Sn1,...,Snm]] is an expression
      Only those above are expressions
      functions supported:
      plus(S1,S2)
@@ -258,7 +259,7 @@ function minus(S1,S2){
 function multiply(S1,S2){
     if(isMatrix(S1)&&isMatrix(S2)){
         if(S1[0].length!=S2.length) throw "Impossible to multiply Matrix with structure like this";
-        if(settings.get("remoteEvaluate")&&S1.length*S1[0].length*S2[0].length>=100000000){
+        if(settings.get("remoteEvaluate")&&S1.length*S1[0].length*S2[0].length>=1000000000){
             try{
                 var postRecvDta = "";
                 $.ajax({
@@ -272,9 +273,13 @@ function multiply(S1,S2){
                         postRecvDta = data;
                         console.log(data);
                     },
+                    error:function(){
+                        postRecvDta= "error";
+                    },
                     async:false,
                     datatype:"json"
                 });
+                if(postRecvDta=="error") throw "error";
                 return postRecvDta;
             }catch (exception){
                 console.log(exception);
@@ -311,7 +316,7 @@ function inverse(S1){
     if(S1.length!=S1[0].length){
         throw "Cannot calculate inverse of non-square matrix"
     }
-    if(settings.get("remoteEvaluate")&&S1.length*S1.length*S1.length>=100000000){
+    if(settings.get("remoteEvaluate")&&S1.length*S1.length*S1.length>=1000000000){
         try{
             var postRecvDta;
             $.ajax({
@@ -325,11 +330,12 @@ function inverse(S1){
                     postRecvDta = data;
                 },
                 error:function(){
-                    throw "error";
+                    postRecvDta= "error";
                 },
                 async:false,
                 datatype:"json"
             });
+            if(postRecvDta=="error") throw "error";
             return postRecvDta;
         }catch (exception){
             console.log(exception);
@@ -345,7 +351,7 @@ function determinant(S1){
     if(S1.length!=S1[0].length){
         throw "Cannot calculate determinant of non-square matrix"
     }
-    if(settings.get("remoteEvaluate")&&S1.length*S1.length*S1.length>=100000000){
+    if(settings.get("remoteEvaluate")&&S1.length*S1.length*S1.length>=1000000000){
         try{
             var postRecvDta;
             $.ajax({
@@ -359,11 +365,12 @@ function determinant(S1){
                     postRecvDta = data;
                 },
                 error:function(){
-                    throw "error";
+                    postRecvDta =  "error";
                 },
                 async:false,
                 datatype:"json"
             });
+            if(postRecvDta=="error") return "error";
             return postRecvDta;
         }catch (exception){
             console.log(exception);
@@ -424,6 +431,36 @@ function divideF(S1,S2){
         return S1;
     }
     throw "Unexpected type of data";
+}
+
+function minusF(S1,S2){
+    if(S2==undefined){
+        if(isNumeric(S1)){
+            return -S1;
+        }else if(isMatrix(S1)){
+            return S1;
+        }else{
+            throw "Unexpected type of data ";
+        }
+    }else{
+        if(isNumeric(S1)&&isNumeric(S2)){
+            return S1-S2;
+        }else if(isMatrix(S1)&&isMatrix(S2)){
+            if(S1.length==S2.length&&S1[0].length==S2[0].length) return S1;else throw "Wrong Structure to minus"
+        }else{
+            throw "Unexpected type of data ";
+        }
+    }
+}
+
+function plusF(S1,S2){
+    if(isNumeric(S1)&&isNumeric(S2)){
+        return S1+S2;
+    }else if(isMatrix(S1)&&isMatrix(S2)){
+        if(S1.length==S2.length&&S1[0].length==S2[0].length) return S1;else throw "Wrong Structure to minus"
+    }else{
+        throw "Unexpected type of data ";
+    }
 }
 
 function inverseF(S1){

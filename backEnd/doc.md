@@ -38,3 +38,17 @@ JSON object should be posted
 				[[1,2],[3,4]]
 			]
 		}
+
+##Installation
+
+We recommand you to use it with Apache Web Server, but almost all other web servers like nginx or tomcat will work.  
+Here are steps you should follow to install the back end server. 
+
+1. Install a web server
+2. Install a plugin or extension or anything else to provide WSGI support
+3. Configure you site
+4. Put static front-end files into the right directory, usually /var/www/html
+5. Put the back end scripts under the directory you want, not the same directory as static files
+6. Point to wsgi.py in your site configure file and redirect the alias of wsgi.py to /api
+7. Install pip, and then use pip to install Numpy and Django
+8. Run!
