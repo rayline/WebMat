@@ -423,5 +423,8 @@ $(document).ready(function(){
 
     console.info("Happy to see you here\nIt is a wise choice to use the console to calculate huge matrix\n" +
         "We only recommand you to use the following functions, and they are enough\n" +
-        "assign(name, value)")
+        "assign(name, value) assigns a value to the variable\n" +
+        "getVar(name) returns the value of the variable\n" +
+        "evalMatExpression(expressoin) evaluates the value of the expression given and returns it\n" +
+        "We have to say sorry for unable to build a GUI that strong, but we hope the console helps");
 });
