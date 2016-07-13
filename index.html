@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="expires" content="-1" />
+    <title>Matrix Calc</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+    <script src="js/js.cookie.js"></script>
+    <script src="js/jquery-2.2.4.js"></script>
+    <script src="js/liblinalg.js"></script>
+    <script src="js/eval.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/pagecontrol.js"></script>
+
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+            <span class="navbar-brand">MatWeb</span>
+            <button class="btn btn-default navbar-btn glyphicon glyphicon-question-sign" data-toggle="modal" data-target="#help" title="Help" style="float: right"></button>
+            <button class="btn btn-default navbar-btn glyphicon glyphicon-cog" data-toggle="modal" data-target="#settings" title="Settings" style="float: right"></button>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row" id="lines-container">
+            <div class="col-xs-12 col-md-9 col-md-offset-2 input-line" id="input-line-0" style="display: none">
+                <span class="col-md-10 col-xs-10" style="padding-left: 0;padding-right: 0">
+                    <div class="input-group">
+                        <span class="disabler">
+                            <input type="text" class="form-control variable-name" aria-label="Variable Name" placeholder="Variable Name" style="width: 20%" onkeyup="varNameChangeHandler(this)" onchange="varNameChangeHandler(this)" onblur="varNameChangeHandler(this);expressionChangeHandler($(this).parent().parent().children().children('.expression'));">
+                        </span>
+                        <span>
+                            <input type="text" class="form-control expression" aria-label="Expression" placeholder="Expression" style="width: 80%;border-right:none;" onchange="expressionChangeHandler(this)" oninput="expressionNewLineChecker(this)" onkeydown="if(event.which==13)$(this).parent().parent().children('.input-group-btn').children('.calculate').click()">
+                        </span>
+                        <span class="input-group-btn">
+                            <button class="btn btn-default hidden-xs glyphicon glyphicon-open open-file-upload" title="from file" style="margin-top: -2px;" onclick="openFileUpload(this)"></button>
+                            <button class="btn btn-default glyphicon glyphicon-th open-matrix-view" aria-hidden="true" style="margin-top: -2px;" onclick="openMatrixView(this)" title="open Matrix View"></button>
+                            <button class="btn btn-warning calculate" onclick="calculate(this)">Calc!</button>
+                        </span>
+                    </div>
+                </span>
+                <span class="delete col-xs-1" style="float: right;width:10%;display: none;padding: 0;text-align: center" >
+                    <button class="btn btn-danger glyphicon glyphicon-remove" onclick="deleteLine(this)" ></button>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="matrixView" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel" style="display: inline-block">Matrix : </h4>
+                    <input type="text" class="form-control" id="rows" placeholder="Rows" style="width:4em;display: inline-block;" onchange="matrixResizeHandler()" onblur="matrixResizeHandler()">
+                    <h4 class="modal-title" style="display: inline-block;">X</h4>
+                    <input type="text" class="form-control" id="cols" placeholder="Cols" style="width:4em;display: inline-block;" onchange="matrixResizeHandler()" onblur="matrixResizeHandler()">
+                    <span style="float: right;margin-top: 1.5em;">Expressions in cells will be evaluated!</span>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table" id="matrix-table">
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="setMatrixToExpression(this)">Set & Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p id="col-num-advisor" class="advisor">
+    </p>
+    <p id="row-num-advisor" class="advisor">
+    </p>
+    <div class="modal fade" tabindex="-1" role="dialog" id="settings">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Settings</h4>
+                </div>
+                <div class="modal-body">
+                    <label><input type="checkbox" checked="checked" data-setting="easyEvaluate" onchange="settingCheckBoxChangeHandler(this)" id="checkbox-easy-evaluate">Allow assigning matrix and numbers to variables automically (disable if big matrix is dealt with)</label>
+                    <label><input type="checkbox" checked="checked" data-setting="remoteEvaluate" onchange="settingCheckBoxChangeHandler(this)" id="checkbox-remote-evalutate">Allow sending heavy computing to remote server</label>
+                    <div>
+                        <label for="input-setting-precision">Precision</label>
+                        <input type="number" id="input-setting-precision" value="0.000000001" data-setting="precision">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    <div class="modal fade" tabindex="-1" role="dialog" id="file-upload">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Content from File</h4>
+                </div>
+                <div class="modal-body">
+                    <label><input type="file" checked="checked" onchange="fileUploadChangeHandler(this)" id="input-file-upload">Select the file to upload, ensure that it is encoded with UTF-8 or ANSI)</label>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" id="btn-set-file" data-dismiss="modal" onclick="setFiletoExpression()">Assign!</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    <div class="modal fade" tabindex="-1" role="dialog" id="help">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1>Help</h1>
+                </div>
+                <div class="modal-body">
+                    <h3>Introduction</h3>
+                    <p>
+                        WebMat is an lightweight web-based matrix calculator with expression evaluating and variable defining.
+                        Based on web, you can use WebMat anywhere, PC or smartphone.
+                        You can use +-*/, and functions like det(), inv(), trans(), trace() here to express operation, [] to form matrix, and () to change priority.
+                        Also there is a matrix view to help you easily input matrix, or you can load matrix or expression from files.
+                        You can close this and see the a few examples, or just read on to learn more but not much about it.
+                    </p>
+                    <h3>Matrix representation</h3>
+                    <p>
+                        Matrix is represented in the way of two-dimension arrays, like [[1,2],[3,4]] which is a 2*2 matrix, [[1,2,3]] which is a 1*3 matrix.
+                        Even vectors should NOT be represented in single-dimension arrays, so [1,2,3] is not a valid expression.
+                    </p>
+                    <h3>Operators</h3>
+                    <p>
+                        +, plus. Supports number plus number, matrix plus matrix, restricted to same structured matrix.
+                    </p>
+                    <p>
+                        -, minus. Supports number minus number, matrix minus matrix. Also with the meaning of negative sign.
+                    </p>
+                    <p>
+                        *, multiply. Supports number mulitply number, matrix multiplication, and matrix scalar multiplication. Matrix multiplication requires the matrix to be valid to execute the operation.
+                    </p>
+                    <p>
+                        /, divide. Supports number divide number and number divide matrix.
+                    </p>
+                    <h3>Functions</h3>
+                    <p>
+                        det(M1), or determinant(M1), calculates the determinant of the matrix given. Requires the matrix to be a square matrix.
+                    </p>
+                    <p>
+                        inv(M1), or inverse(M1), calculates the inverse of the matrix given. Requires the matrix to be full-rank square matrix.
+                    </p>
+                    <p>
+                        trans(M1), or transpose(M1), calculates the transpose of the matrix
+                    </p>
+                    <p>
+                        trace(M1), calculates the trace of the matrix.
+                    </p>
+                    <h3>Brackets</h3>
+                    <p>
+                        Brackets can be used to change the priority of evaluation. The evaluation is based on the priority of (), [] , */, +-.
+                    </p>
+                    <h3>Evaluate everywhere!</h3>
+                    <p>
+                        You can key in a expression to evaluate anywhere, wherever it is the common expression input or the cell of matrix view.
+                    </p>
+                    <h3>Status of input boxes</h3>
+                    <p>
+                        Variable names are not changed since it is determined, and if it goes red, it means the name might be not valid or duplicated.
+                        A valid name starts with an English letter and may be followed by letter or numbers.
+                    </p>
+                    <p>
+                        For expressions, you may key in any expression allowed above. A green light guarantees only the structure of the expression is checked, the operands are find, matrix structures are valid for calculation, but NOT no math error like divided-by-zero or zero-determinant-inverse.
+                        A yellow light means the result of the expression is changed but not stored into variable, which exists when a variable name is not given or when EasyEvaluate is turned off, that you have to click Calc or strike Enter manually after changing the expression.
+                        A red light however means there is absolutely an error such as calculating matrix plus numbers or a misspell on variable names.
+                    </p>
+                    <p>
+                        For matrix cells, you have to guarantee that the value must be numeric, not a matrix.
+                    </p>
+                    <h3>About Remote Evaluating</h3>
+                    <p>
+                        Remote evaluating is still an experimental function to do calculation which is extremely heavy remotely. Because of lack of funds and some regulation restrictions, we can not deploy high performance server clusters, not to say deploy them globally.
+                        For this reason, it is a fine function, but not working well now.
+                    </p>
+                    <h3>About HUGE Matrix Processing</h3>
+                    <p>
+                        It is possible for our app to calculate such huge matrix, especially our own linear algebra library with the high performance modern Javascript engines.
+                        BUT, you browser DOESN'T take the load.
+                        It is not wise to do large scientific calculation with a GUI, and when the size of the matrix exceeds 300*300 or something like it, the browser is likely to encounter really bad performance.
+                    </p>
+                    <p>
+                        If you have to do so, there is a few advices.
+                    </p>
+                    <p>
+                        Only load pure matrix from files, not expressions, not even simple ones because if it need to be evaluated, it can be extremely heavy load,
+                    </p>
+                    <p>
+                        Try CONSOLE if you have to.
+                    </p>
+                    <p>
+                        assign(name, value) is the function that assign the value to a variable. In some browsers like Chrome, it can NOT load a huge matrix to the text input, so you may have to do it manually on the console.
+                        Since the assigned variable will not be updated on GUI, you had better use distinguished name from those assigned.
+                    </p>
+                    <p>
+                        getVar(name) returns the object you stored in the variable.
+                    </p>
+                    <p>
+                        evalMatExpression(expression) is the function that evaluate the expression given in String just like it is in the GUI and returns the evaluated value.
+                        It throws exceptions if error occurs.
+                    </p>
+                    <h3>About Copyright</h3>
+                    <p>
+                        MatWeb is distributed under MIT license, and can be found in <a href="">GitHub</a>>.
+                    </p>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+</body>
+</html>

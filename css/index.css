@@ -1,0 +1,41 @@
+.open-matrix-view{
+    opacity: 0.5;
+    background: none;
+    border-left:none;
+}
+
+.open-matrix-view:hover{
+    background: none;
+    opacity: 1;
+}
+
+.open-file-upload{
+    opacity: 0.5;
+    background: none;
+    border-left:none;
+    border-right: none;
+}
+
+.open-file-upload:hover{
+    background: none;
+    opacity: 1;
+}
+
+.matrix-table-cell{
+    border-radius: 0;
+}
+
+.advisor{
+    background-color: #adadad;
+    display: block;
+    position: absolute;
+    z-index: 1051;
+    opacity: 0.5;
+    text-align: center;
+    font-size: larger;
+    line-height: 2em;
+}
+
+body{
+    padding-top: 70px;
+}
