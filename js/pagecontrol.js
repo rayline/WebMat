@@ -439,9 +439,9 @@ $(document).ready(function(){
         "We have to say sorry for unable to build a GUI that strong, but we hope the console helps");
 
     newLine(3);
-    addLineTutor("#input-line-1","ExA","[[1,2],[3,4]]");
-    addLineTutor("#input-line-2","ExB","[[5,6],[7,8]]");
-    addLineTutor("#input-line-3","Exc","det(ExA*(ExB+trans(ExA)))-trace(inv(ExA))");
+    addLineTutor("#input-line-1","I","[[1,2],[3,4]]");
+    addLineTutor("#input-line-2","J","[[5,6],[7,8]]");
+    addLineTutor("#input-line-3","K","det(I*(J+trans(I)))-trace(inv(I))");
 
     deleteButtonDisplayCheck();
 });
