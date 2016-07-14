@@ -91,9 +91,9 @@ function calculate(t){
         $(t).parent().parent().children().children(".expression").val("Math error!");
         return;
     }
+    $(t).parent().parent().children().children(".expression").val(JSON.stringify(res)).parent().removeClass("has-error").removeClass("has-warning").addClass("has-success");
     if(vname!=""){
         assign(vname, res);
-        $(t).parent().parent().children().children(".expression").val(JSON.stringify(res)).parent().removeClass("has-error").removeClass("has-warning").addClass("has-success");
         $(t).parent().parent().children().children(".variable-name").attr("disabled","").attr("title","Not allowed to change assigned variable names.");
     }
     $(t).removeAttr("disabled");
